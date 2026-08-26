@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.execution.domain.schedule.ScheduleEngineTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-08-25T21:47:24" hostname="hermes" time="0.024">
+  <properties/>
+  <testcase name="5 minutes overdue - user not executing plan" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.003"/>
+  <testcase name="exact block start" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.002"/>
+  <testcase name="after last block" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.001"/>
+  <testcase name="1 minute before transition" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.002"/>
+  <testcase name="before first block" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.001"/>
+  <testcase name="cancelled block ignored" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.002"/>
+  <testcase name="between blocks" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.002"/>
+  <testcase name="current state matches plan" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.002"/>
+  <testcase name="current state differs from plan" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.005"/>
+  <testcase name="overlapping blocks - first match wins as current" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.002"/>
+  <testcase name="empty calendar" classname="com.example.execution.domain.schedule.ScheduleEngineTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

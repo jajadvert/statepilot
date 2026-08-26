@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.execution.notifications.NotificationSchedulerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-25T21:47:24" hostname="hermes" time="0.015">
+  <properties/>
+  <testcase name="delay reschedules - old notification cancelled" classname="com.example.execution.notifications.NotificationSchedulerTest" time="0.007"/>
+  <testcase name="changed calendar event cancels old notification" classname="com.example.execution.notifications.NotificationSchedulerTest" time="0.001"/>
+  <testcase name="travel warning appears 15 minutes before departure" classname="com.example.execution.notifications.NotificationSchedulerTest" time="0.002"/>
+  <testcase name="duplicate notification not created" classname="com.example.execution.notifications.NotificationSchedulerTest" time="0.002"/>
+  <testcase name="correct warning timestamp" classname="com.example.execution.notifications.NotificationSchedulerTest" time="0.001"/>
+  <testcase name="correct due timestamp" classname="com.example.execution.notifications.NotificationSchedulerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

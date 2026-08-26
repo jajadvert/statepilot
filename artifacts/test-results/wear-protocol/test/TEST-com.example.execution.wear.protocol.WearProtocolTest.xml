@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.execution.wear.protocol.WearProtocolTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-25T21:47:25" hostname="hermes" time="0.018">
+  <properties/>
+  <testcase name="serialization roundtrip" classname="com.example.execution.wear.protocol.WearProtocolTest" time="0.014"/>
+  <testcase name="empty planned state" classname="com.example.execution.wear.protocol.WearProtocolTest" time="0.0"/>
+  <testcase name="new revision accepted" classname="com.example.execution.wear.protocol.WearProtocolTest" time="0.0"/>
+  <testcase name="unknown fields ignored" classname="com.example.execution.wear.protocol.WearProtocolTest" time="0.002"/>
+  <testcase name="unicode labels survive roundtrip" classname="com.example.execution.wear.protocol.WearProtocolTest" time="0.001"/>
+  <testcase name="duplicate revision idempotent" classname="com.example.execution.wear.protocol.WearProtocolTest" time="0.0"/>
+  <testcase name="old revision ignored" classname="com.example.execution.wear.protocol.WearProtocolTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

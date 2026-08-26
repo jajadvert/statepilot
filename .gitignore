@@ -1,0 +1,18 @@
+# Gradle
+.gradle/
+**/build/
+local.properties
+*.apk.idsig
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+
+# Secrets
+*.jks
+keystore.properties
+gradle.zip

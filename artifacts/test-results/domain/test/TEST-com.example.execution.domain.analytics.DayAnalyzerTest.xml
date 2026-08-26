@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.execution.domain.analytics.DayAnalyzerTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-25T21:47:24" hostname="hermes" time="0.161">
+  <properties/>
+  <testcase name="unplanned state reported" classname="com.example.execution.domain.analytics.DayAnalyzerTest" time="0.138"/>
+  <testcase name="block never started reported as skipped" classname="com.example.execution.domain.analytics.DayAnalyzerTest" time="0.003"/>
+  <testcase name="late finish - overrun" classname="com.example.execution.domain.analytics.DayAnalyzerTest" time="0.003"/>
+  <testcase name="skipped block" classname="com.example.execution.domain.analytics.DayAnalyzerTest" time="0.002"/>
+  <testcase name="interruptions counted and net focused computed" classname="com.example.execution.domain.analytics.DayAnalyzerTest" time="0.004"/>
+  <testcase name="early finish" classname="com.example.execution.domain.analytics.DayAnalyzerTest" time="0.002"/>
+  <testcase name="late start" classname="com.example.execution.domain.analytics.DayAnalyzerTest" time="0.001"/>
+  <testcase name="exact execution" classname="com.example.execution.domain.analytics.DayAnalyzerTest" time="0.002"/>
+  <testcase name="multiple execution fragments" classname="com.example.execution.domain.analytics.DayAnalyzerTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

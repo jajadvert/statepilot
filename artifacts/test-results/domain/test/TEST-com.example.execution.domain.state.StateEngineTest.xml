@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.execution.domain.state.StateEngineTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-08-25T21:47:24" hostname="hermes" time="0.027">
+  <properties/>
+  <testcase name="start first state" classname="com.example.execution.domain.state.StateEngineTest" time="0.004"/>
+  <testcase name="switch creates transition" classname="com.example.execution.domain.state.StateEngineTest" time="0.002"/>
+  <testcase name="delay shifts future planning and records deviation" classname="com.example.execution.domain.state.StateEngineTest" time="0.002"/>
+  <testcase name="duplicate requestId executes once" classname="com.example.execution.domain.state.StateEngineTest" time="0.001"/>
+  <testcase name="finish leaves no current state" classname="com.example.execution.domain.state.StateEngineTest" time="0.002"/>
+  <testcase name="skip records deviation without touching history" classname="com.example.execution.domain.state.StateEngineTest" time="0.001"/>
+  <testcase name="interrupt remembers interrupted context" classname="com.example.execution.domain.state.StateEngineTest" time="0.002"/>
+  <testcase name="resume restores activity context" classname="com.example.execution.domain.state.StateEngineTest" time="0.002"/>
+  <testcase name="interrupt closes current state" classname="com.example.execution.domain.state.StateEngineTest" time="0.001"/>
+  <testcase name="interrupt then choose different state does not auto-resume" classname="com.example.execution.domain.state.StateEngineTest" time="0.001"/>
+  <testcase name="resume without interruption fails" classname="com.example.execution.domain.state.StateEngineTest" time="0.001"/>
+  <testcase name="unplanned state allowed" classname="com.example.execution.domain.state.StateEngineTest" time="0.001"/>
+  <testcase name="start of cancelled block rejected" classname="com.example.execution.domain.state.StateEngineTest" time="0.003"/>
+  <testcase name="starting same state twice follows defined behavior - closes and reopens" classname="com.example.execution.domain.state.StateEngineTest" time="0.001"/>
+  <testcase name="finish without current state fails" classname="com.example.execution.domain.state.StateEngineTest" time="0.001"/>
+  <testcase name="start second state closes first" classname="com.example.execution.domain.state.StateEngineTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

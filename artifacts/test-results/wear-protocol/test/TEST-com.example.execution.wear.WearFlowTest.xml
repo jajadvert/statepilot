@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.execution.wear.WearFlowTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-25T21:47:25" hostname="hermes" time="0.165">
+  <properties/>
+  <testcase name="current state shown on watch" classname="com.example.execution.wear.WearFlowTest" time="0.15"/>
+  <testcase name="interrupt and resume via watch" classname="com.example.execution.wear.WearFlowTest" time="0.005"/>
+  <testcase name="watch start command changes phone state" classname="com.example.execution.wear.WearFlowTest" time="0.002"/>
+  <testcase name="overdue shown" classname="com.example.execution.wear.WearFlowTest" time="0.002"/>
+  <testcase name="duplicate command processed once" classname="com.example.execution.wear.WearFlowTest" time="0.002"/>
+  <testcase name="next block shown with transition status" classname="com.example.execution.wear.WearFlowTest" time="0.002"/>
+  <testcase name="old revision ignored by merger" classname="com.example.execution.wear.WearFlowTest" time="0.0"/>
+  <testcase name="offline error state" classname="com.example.execution.wear.WearFlowTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

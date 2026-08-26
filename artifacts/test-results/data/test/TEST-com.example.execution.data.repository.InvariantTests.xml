@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.execution.data.repository.InvariantTests" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-25T21:47:23" hostname="hermes" time="0.144">
+  <properties/>
+  <testcase name="finish with endedAt before start rejected" classname="com.example.execution.data.repository.InvariantTests" time="0.127"/>
+  <testcase name="planned block may exist without actual state" classname="com.example.execution.data.repository.InvariantTests" time="0.005"/>
+  <testcase name="history reconstructable" classname="com.example.execution.data.repository.InvariantTests" time="0.002"/>
+  <testcase name="only one active state allowed" classname="com.example.execution.data.repository.InvariantTests" time="0.001"/>
+  <testcase name="cancelled future block remains auditable - upsert never deletes" classname="com.example.execution.data.repository.InvariantTests" time="0.002"/>
+  <testcase name="closed states stay immutable" classname="com.example.execution.data.repository.InvariantTests" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
