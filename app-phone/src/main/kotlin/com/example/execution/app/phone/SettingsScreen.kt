@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -29,6 +31,7 @@ fun SettingsScreen(
     context: Context,
     settings: CalendarSettings,
     onSync: suspend () -> String,
+    interruptSettings: InterruptCategorySettings,
     onClose: () -> Unit
 ) {
     val linkedId by settings.linkedCalendarId.collectAsStateWithLifecycle(initialValue = null)
@@ -101,6 +104,49 @@ fun SettingsScreen(
                     Text(if (syncing) "Syncing…" else "Sync now")
                 }
                 lastSync?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+            }
+
+            // ---- interrupt reasons ----
+            HorizontalDivider()
+            Text("Interrupt reasons", style = MaterialTheme.typography.titleMedium)
+            val configs by interruptSettings.configs.collectAsStateWithLifecycle(initialValue = emptyList())
+            if (configs.isEmpty()) {
+                LaunchedEffect(Unit) { /* store initializes on first read */ }
+            }
+            configs.forEach { cfg ->
+                var label by remember(cfg.id) { mutableStateOf(cfg.label) }
+                var enabled by remember(cfg.id) { mutableStateOf(cfg.enabled) }
+                val scope2 = rememberCoroutineScope()
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Switch(
+                        checked = enabled,
+                        onCheckedChange = { on ->
+                            enabled = on
+                            scope2.launch {
+                                interruptSettings.save(
+                                    configs.map {
+                                        if (it.id == cfg.id) it.copy(enabled = on, label = label) else it
+                                    }
+                                )
+                            }
+                        }
+                    )
+                    OutlinedTextField(
+                        value = label,
+                        onValueChange = { newLabel ->
+                            label = newLabel
+                            scope2.launch {
+                                interruptSettings.save(
+                                    configs.map {
+                                        if (it.id == cfg.id) it.copy(label = newLabel, enabled = enabled) else it
+                                    }
+                                )
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
 
             TextButton(onClick = onClose) { Text("Back") }

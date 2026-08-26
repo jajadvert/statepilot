@@ -74,7 +74,9 @@ class PhoneExecutionPresenter(
             nextTitle = s.nextPlannedBlock?.title ?: "—",
             nextStartText = s.nextPlannedBlock?.plannedStart?.toString() ?: "",
             statusLine = statusLine(s.deviationSeconds, s.transitionStatus),
-            showResume = isInInterruption(actual)
+            showResume = isInInterruption(actual),
+            // keep transient UI state across the 1s refresh ticks
+            showInterruptionPicker = _ui.value.showInterruptionPicker
         )
     }
 

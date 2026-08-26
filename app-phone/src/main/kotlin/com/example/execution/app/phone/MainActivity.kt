@@ -87,6 +87,9 @@ class MainActivity : ComponentActivity() {
 
         // Calendar linking: Android calendar source + idempotent importer onto Room.
         val calendarSettings = CalendarSettings(this)
+
+        // Editable interrupt reasons.
+        val interruptSettings = InterruptCategorySettings(this)
         val syncCalendar: suspend () -> String = {
             val calId = calendarSettings.getLinkedCalendarId()
             if (calId == null) "No calendar linked"
@@ -106,10 +109,11 @@ class MainActivity : ComponentActivity() {
         var showSettings by mutableStateOf(false)
         setContent {
             if (showSettings) {
-                SettingsScreen(this, calendarSettings, syncCalendar) { showSettings = false }
+                SettingsScreen(this, calendarSettings, syncCalendar, interruptSettings) { showSettings = false }
             }
             val ui by presenter.ui.collectAsState()
-            ExecutionScreen(ui = ui, actions = object : PhoneActions {
+            val interruptConfigs by interruptSettings.configs.collectAsState(initial = defaultInterruptConfigs())
+            ExecutionScreen(ui = ui, interruptConfigs = interruptConfigs, actions = object : PhoneActions {
                 override fun openSettings() { showSettings = true }
                 override fun export() { exporter.exportLast14Days() }
                 override fun start() { scope.launch { presenter.startPlanned("pb-demo") } }
@@ -147,10 +151,15 @@ interface PhoneActions {
 }
 
 @Composable
-fun ExecutionScreen(ui: PhoneUiState, actions: PhoneActions) {
+fun ExecutionScreen(
+    ui: PhoneUiState,
+    actions: PhoneActions,
+    interruptConfigs: List<InterruptCategoryConfig> = defaultInterruptConfigs()
+) {
     MaterialTheme {
         if (ui.showInterruptionPicker) {
             InterruptionPickerDialog(
+                configs = interruptConfigs,
                 onPick = actions::interruptCategory,
                 onDismiss = actions::dismissInterrupt
             )
@@ -187,15 +196,22 @@ fun ExecutionScreen(ui: PhoneUiState, actions: PhoneActions) {
 }
 
 @Composable
-private fun InterruptionPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit) {
-    val categories = listOf("CALL", "PERSON", "ADMIN", "BREAK", "MESSAGE", "URGENT_TASK", "OTHER")
+private fun InterruptionPickerDialog(
+    configs: List<InterruptCategoryConfig>,
+    onPick: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val visible = configs.filter { it.enabled }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Interrupt — why?") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                categories.forEach { c ->
-                    TextButton(onClick = { onPick(c) }) { Text(c.replace('_', ' ').lowercase()) }
+                if (visible.isEmpty()) {
+                    Text("No interrupt reasons enabled — edit them in Settings")
+                }
+                visible.forEach { c ->
+                    TextButton(onClick = { onPick(c.id) }) { Text(c.label) }
                 }
             }
         },
@@ -205,6 +221,12 @@ private fun InterruptionPickerDialog(onPick: (String) -> Unit, onDismiss: () -> 
         }
     )
 }
+
+/** Live ticking clock: 0:05, 1:23, 1:02:03. */
+private fun defaultInterruptConfigs(): List<InterruptCategoryConfig> =
+    InterruptionCategory.entries.map { c ->
+        InterruptCategoryConfig(c.name, c.name.lowercase().replace('_', ' '), true)
+    }
 
 /** Live ticking clock: 0:05, 1:23, 1:02:03. */
 private fun formatElapsed(totalSeconds: Long): String {

@@ -138,6 +138,20 @@ class PhoneExecutionPresenterTest {
     }
 
     @Test
+    fun `interrupt picker stays open across refresh ticks`() = runTest {
+        // regression: refresh() must not reset the picker state
+        val (p, _, blocks) = setup()
+        seedDeepWork(blocks)
+        p.startPlanned("pb-dw")
+        p.requestInterruptPicker()
+        assertTrue(p.ui.value.showInterruptionPicker)
+        p.refresh()
+        assertTrue(p.ui.value.showInterruptionPicker, "picker closed by refresh tick")
+        p.refresh()
+        assertTrue(p.ui.value.showInterruptionPicker)
+    }
+
+    @Test
     fun `interrupt picker category sends command`() = runTest {
         val (p, _, blocks) = setup()
         seedDeepWork(blocks)
