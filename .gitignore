@@ -16,3 +16,6 @@ local.properties
 *.jks
 keystore.properties
 gradle.zip
+
+# test-APKs worden te groot (>100 MB GitHub-limiet) — via Release distribueren
+artifacts/apk/*-androidTest.apk
