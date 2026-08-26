@@ -162,7 +162,7 @@ fun ExecutionScreen(ui: PhoneUiState, actions: PhoneActions) {
         ) {
             Text("CURRENT", fontSize = 12.sp)
             Text(
-                if (ui.currentLabel == "—") "—" else "${ui.currentLabel} · ${ui.currentElapsedSeconds / 60} min",
+                if (ui.currentLabel == "—") "—" else "${ui.currentLabel} · ${formatElapsed(ui.currentElapsedSeconds)}",
                 fontSize = 24.sp, fontWeight = FontWeight.Bold
             )
             Text("PLANNED NOW", fontSize = 12.sp)
@@ -204,4 +204,14 @@ private fun InterruptionPickerDialog(onPick: (String) -> Unit, onDismiss: () -> 
             TextButton(onClick = onDismiss) { Text("Cancel") }
         }
     )
+}
+
+/** Live ticking clock: 0:05, 1:23, 1:02:03. */
+private fun formatElapsed(totalSeconds: Long): String {
+    val s = totalSeconds.coerceAtLeast(0)
+    val h = s / 3600
+    val m = (s % 3600) / 60
+    val sec = s % 60
+    return if (h > 0) "%d:%02d:%02d".format(h, m, sec)
+    else "%d:%02d".format(m, sec)
 }
