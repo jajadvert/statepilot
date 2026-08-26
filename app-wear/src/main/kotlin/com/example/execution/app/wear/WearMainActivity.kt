@@ -1,53 +1,78 @@
 package com.example.execution.app.wear
 
 import android.app.Activity
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.view.Gravity
+import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.execution.wear.cache.WatchDisplayState
+import com.example.execution.wear.tile.WatchActionMapper
+import com.example.execution.wear.tile.WatchButton
 import com.example.execution.wear.protocol.WearStateDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
- * Wear state viewer wired to the real data path:
+ * Wear state viewer with quick actions:
  *  - shows cached state immediately (Fase 12 offline behaviour),
- *  - updates whenever WearDataLayerService receives a fresh state,
- *  - shows a stale marker when the cached copy is old.
+ *  - updates from the Data Layer via WearDataLayerService,
+ *  - action buttons send commands back to the phone (Interrupt/Resume/Finish/Start/+5/Skip).
  */
 class WearMainActivity : Activity() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var label: TextView
+    private lateinit var buttonRow1: LinearLayout
+    private lateinit var buttonRow2: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        label = TextView(this)
-        label.setPadding(40, 80, 40, 40)
-        setContentView(label)
 
-        // Real cache + provider; the service pushes into the same provider.
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24, 60, 24, 24)
+            gravity = Gravity.CENTER_HORIZONTAL
+        }
+        label = TextView(this).apply {
+            setTextColor(Color.WHITE)
+            textSize = 16f
+            gravity = Gravity.CENTER
+            setTypeface(null, Typeface.BOLD)
+        }
+        buttonRow1 = row()
+        buttonRow2 = row()
+        root.addView(label)
+        root.addView(buttonRow1)
+        root.addView(buttonRow2)
+        setContentView(root)
+
+        // Real cache + provider; the listener service pushes into the same provider.
         val cache = DataStoreWearStateCache(this)
         val provider = com.example.execution.wear.cache.WatchStateProvider(cache = cache)
         WearDataLayerBridge.currentProvider = provider
 
-        // The listener service notifies us of fresh/offline display states.
         WearDataLayerBridge.stateConsumer = { display ->
             scope.launch { render(display) }
         }
 
-        // Initial render: cached state (or placeholder when nothing yet).
         scope.launch {
             render(provider.current())
-            // watch live updates while connected
             while (true) {
                 kotlinx.coroutines.delay(5_000)
                 render(provider.current())
             }
         }
+    }
+
+    private fun row(): LinearLayout = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER
     }
 
     private fun render(display: WatchDisplayState) {
@@ -63,6 +88,25 @@ class WearMainActivity : Activity() {
                 }
                 if (display.isStale) append("\n(offline)")
                 else if (display.fromCache) append("\n(cached)")
+            }
+        }
+
+        // rebuild action buttons from the pure mapper
+        buttonRow1.removeAllViews()
+        buttonRow2.removeAllViews()
+        val buttons = WatchActionMapper.buttons(display) { "watch-${System.nanoTime()}" }
+        buttons.forEachIndexed { i, b ->
+            val target = if (i < 3) buttonRow1 else buttonRow2
+            target.addView(button(b))
+        }
+    }
+
+    private fun button(b: WatchButton): Button = Button(this).apply {
+        text = b.label
+        textSize = 11f
+        setOnClickListener {
+            scope.launch {
+                runCatching { WearCommandSender.send(this@WearMainActivity, b.command) }
             }
         }
     }

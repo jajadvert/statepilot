@@ -46,6 +46,9 @@ class WearDataLayerService : WearableListenerService() {
                     val display = WearDataLayerBridge.currentProvider.onIncoming(state)
                     stateConsumer?.invoke(display)
                     StatePilotTileStateHolder.update(display)
+                    // refresh the tile so it shows the new state
+                    androidx.wear.tiles.TileService.getUpdater(this@WearDataLayerService)
+                        .requestUpdate(StatePilotTileService::class.java)
                 }
             }
         }
