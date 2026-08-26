@@ -61,7 +61,7 @@ class MessageClientWearTransport(
     fun commandFlow(): kotlinx.coroutines.flow.Flow<WearCommandDto> = commandChannel.receiveAsFlow()
 
     /** Publish state to all connected wearable nodes as a DataItem. */
-    suspend fun publishState(state: WearStateDto): Boolean {
+    override suspend fun publish(state: WearStateDto): Boolean {
         _states.value = state
         val bytes = json.encodeToString(WearStateDto.serializer(), state).encodeToByteArray()
         val nodes: List<Node> = nodeClient.connectedNodes.await()

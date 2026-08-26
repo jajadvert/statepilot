@@ -85,6 +85,15 @@ class MainActivity : ComponentActivity() {
         // Fase 19 export: planner-feedback contract from Room data.
         val exporter = PlannerFeedbackExporter(this, db, scope)
 
+        // Phone -> watch: real Data Layer bridge (state publish + command receive).
+        val wearTransport = MessageClientWearTransport(this)
+        val wearBridge = com.example.execution.wear.PhoneWearBridge(
+            scheduleEngine, stateEngine, states, blocks, wearTransport
+        )
+        val wearLoop = WearPublishLoop(scope, wearBridge, wearTransport)
+        wearLoop.start()
+        wireWatchCommands(scope, wearTransport, wearBridge)
+
         // Calendar linking: Android calendar source + idempotent importer onto Room.
         val calendarSettings = CalendarSettings(this)
 

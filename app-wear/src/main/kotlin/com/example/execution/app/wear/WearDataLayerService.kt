@@ -100,4 +100,8 @@ object WearDataLayerBridge {
 
     @Volatile
     var onWatchCommandFromPhone: (suspend (WearCommandDto) -> Unit)? = null
+
+    /** The foreground activity registers here to receive display updates. */
+    @Volatile
+    var stateConsumer: ((com.example.execution.wear.cache.WatchDisplayState) -> Unit)? = null
 }

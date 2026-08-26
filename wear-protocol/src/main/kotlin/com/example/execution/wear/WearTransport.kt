@@ -31,6 +31,8 @@ import kotlinx.datetime.Instant
  */
 interface WearTransport {
     val states: Flow<WearStateDto>
+    /** Publish the current state to the paired device (no-op safe offline). */
+    suspend fun publish(state: WearStateDto): Boolean
     suspend fun sendCommand(command: WearCommandDto): Result<Unit>
 }
 
@@ -42,7 +44,10 @@ class FakeWearTransport : WearTransport {
     val sentCommands = mutableListOf<WearCommandDto>()
     var failCommands = false
 
-    fun publish(state: WearStateDto) { _states.value = state }
+    override suspend fun publish(state: WearStateDto): Boolean {
+        _states.value = state
+        return true
+    }
 
     override suspend fun sendCommand(command: WearCommandDto): Result<Unit> =
         if (failCommands) Result.failure(IllegalStateException("Phone unavailable"))
@@ -58,7 +63,7 @@ class PhoneWearBridge(
     private val stateEngine: StateEngine,
     @Suppress("UNUSED_PARAMETER") actualStates: ActualStateRepository,
     @Suppress("UNUSED_PARAMETER") plannedBlocks: PlannedBlockRepository,
-    private val transport: FakeWearTransport
+    private val transport: WearTransport
 ) {
     private var revision = 0L
 
