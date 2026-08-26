@@ -45,6 +45,7 @@ interface InterruptionRepository {
     suspend fun getOpenForState(activeInterruptionStateId: String): Interruption?
     /** All interruptions recorded against an interrupted (parent) state. */
     suspend fun getInterruptionsFor(interruptedStateId: String): List<Interruption>
+    suspend fun getAll(): List<Interruption>
 }
 
 interface DeviationRepository {

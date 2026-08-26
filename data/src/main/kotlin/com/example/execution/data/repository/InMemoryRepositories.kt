@@ -63,6 +63,8 @@ class InMemoryInterruptionRepository : InterruptionRepository {
 
     override suspend fun getInterruptionsFor(interruptedStateId: String): List<Interruption> =
         items.values.filter { it.interruptedStateId == interruptedStateId }
+
+    override suspend fun getAll(): List<Interruption> = items.values.toList()
 }
 
 class InMemoryDeviationRepository : DeviationRepository {
