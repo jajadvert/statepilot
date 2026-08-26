@@ -72,4 +72,6 @@ adb shell am instrument -w com.example.execution.wear.test/androidx.test.runner.
 - APK's: `artifacts/apk/` (phone, wear, wear-test)
 - Releases: https://github.com/jajadvert/statepilot/releases
 - Screenshots E2E-demo: `docs/screenshots/`
+- MVP acceptance-checklist (§27-scenario): `docs/MVP-ACCEPTANCE.md`
+- Device-test-playbook: `PLAYBOOK.md`
 - Testresultaten: `artifacts/test-results/`
