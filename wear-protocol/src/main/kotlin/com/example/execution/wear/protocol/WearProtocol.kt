@@ -50,3 +50,11 @@ class WearStateMerger {
 
     fun currentRevision(): Long = currentRevision
 }
+
+
+/** Shared Data Layer paths (single source of truth for phone + watch). */
+object WearDataLayerPaths {
+    const val STATE_PATH = "/statepilot/state"
+    const val COMMAND_PATH = "/statepilot/command"
+    const val KEY_STATE = "state_json"
+}
