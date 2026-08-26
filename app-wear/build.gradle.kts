@@ -27,6 +27,8 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":wear-protocol"))
     implementation("androidx.wear:wear:1.3.0")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     testImplementation(kotlin("test"))
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
