@@ -11,6 +11,7 @@ import kotlinx.datetime.Instant
 /** Per-block execution analysis (Fase 15, §21). */
 data class BlockAnalysis(
     val plannedBlockId: String,
+    val activityTypeId: String?,
     val title: String,
     val plannedDurationMinutes: Long,
     val actualDurationMinutes: Long?,
@@ -74,7 +75,7 @@ class DayAnalyzer(
 
         if (fragments.isEmpty() || skipped) {
             return BlockAnalysis(
-                plannedBlockId = block.id, title = block.title,
+                plannedBlockId = block.id, activityTypeId = block.activityTypeId, title = block.title,
                 plannedDurationMinutes = plannedDurationSec / 60,
                 actualDurationMinutes = null, startDelaySeconds = null,
                 endDeviationSeconds = null, interruptionSeconds = 0,
@@ -100,7 +101,7 @@ class DayAnalyzer(
         val endDeviation = lastEnd?.let { (it.toEpochMilliseconds() - block.plannedEnd.toEpochMilliseconds()) / 1000 }
 
         return BlockAnalysis(
-            plannedBlockId = block.id, title = block.title,
+            plannedBlockId = block.id, activityTypeId = block.activityTypeId, title = block.title,
             plannedDurationMinutes = plannedDurationSec / 60,
             actualDurationMinutes = actualSec?.div(60),
             startDelaySeconds = startDelay,
