@@ -25,6 +25,7 @@ data class PhoneUiState(
     val nextStartText: String = "",
     val statusLine: String = "",
     val showResume: Boolean = false,
+    val showInterruptionPicker: Boolean = false,
     val busy: Boolean = false
 )
 
@@ -101,6 +102,15 @@ class PhoneExecutionPresenter(
 
     suspend fun interrupt(category: InterruptionCategory) =
         send(InterruptCurrentState(category, source(), requestIds()))
+
+    /** Fase 14 UX: open the category picker. */
+    fun requestInterruptPicker() {
+        _ui.value = _ui.value.copy(showInterruptionPicker = true)
+    }
+
+    fun dismissInterruptPicker() {
+        _ui.value = _ui.value.copy(showInterruptionPicker = false)
+    }
 
     suspend fun resume() = send(ResumeInterruptedState(source(), requestIds()))
 

@@ -70,7 +70,13 @@ class MainActivity : ComponentActivity() {
             val ui by presenter.ui.collectAsState()
             ExecutionScreen(ui = ui, actions = object : PhoneActions {
                 override fun start() { scope.launch { presenter.startPlanned("pb-demo") } }
-                override fun interrupt() { scope.launch { presenter.interrupt(InterruptionCategory.BREAK) } }
+                override fun interrupt() { presenter.requestInterruptPicker() }
+                override fun interruptCategory(category: String) {
+                    val c = InterruptionCategory.entries.firstOrNull { it.name.equals(category, ignoreCase = true) }
+                        ?: InterruptionCategory.OTHER
+                    scope.launch { presenter.interrupt(c); presenter.dismissInterruptPicker() }
+                }
+                override fun dismissInterrupt() { presenter.dismissInterruptPicker() }
                 override fun finish() { scope.launch { presenter.finish() } }
                 override fun resume() { scope.launch { presenter.resume() } }
                 override fun skip() { scope.launch { presenter.skip("pb-demo") } }
@@ -87,7 +93,9 @@ class MainActivity : ComponentActivity() {
 
 interface PhoneActions {
     fun start()
-    fun interrupt()
+    fun interrupt()          // opens the category picker
+    fun interruptCategory(category: String)
+    fun dismissInterrupt()
     fun finish()
     fun resume()
     fun skip()
@@ -96,6 +104,12 @@ interface PhoneActions {
 @Composable
 fun ExecutionScreen(ui: PhoneUiState, actions: PhoneActions) {
     MaterialTheme {
+        if (ui.showInterruptionPicker) {
+            InterruptionPickerDialog(
+                onPick = actions::interruptCategory,
+                onDismiss = actions::dismissInterrupt
+            )
+        }
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -123,4 +137,24 @@ fun ExecutionScreen(ui: PhoneUiState, actions: PhoneActions) {
             }
         }
     }
+}
+
+@Composable
+private fun InterruptionPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit) {
+    val categories = listOf("CALL", "PERSON", "ADMIN", "BREAK", "MESSAGE", "URGENT_TASK", "OTHER")
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Interrupt — why?") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                categories.forEach { c ->
+                    TextButton(onClick = { onPick(c) }) { Text(c.replace('_', ' ').lowercase()) }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }

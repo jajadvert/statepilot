@@ -129,6 +129,28 @@ class PhoneExecutionPresenterTest {
     }
 
     @Test
+    fun `interrupt picker opens and dismisses`() = runTest {
+        val (p, _, _) = setup()
+        p.requestInterruptPicker()
+        assertTrue(p.ui.value.showInterruptionPicker)
+        p.dismissInterruptPicker()
+        assertFalse(p.ui.value.showInterruptionPicker)
+    }
+
+    @Test
+    fun `interrupt picker category sends command`() = runTest {
+        val (p, _, blocks) = setup()
+        seedDeepWork(blocks)
+        p.startPlanned("pb-dw")
+        p.requestInterruptPicker()
+        assertTrue(p.interrupt(InterruptionCategory.URGENT_TASK))
+        p.dismissInterruptPicker()
+        p.refresh()
+        assertEquals("urgent_task", p.ui.value.currentLabel)
+        assertFalse(p.ui.value.showInterruptionPicker)
+    }
+
+    @Test
     fun `finish leaves no current state`() = runTest {
         val (p, _, _) = setup()
         p.startActivity("admin")

@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  jvm-tests:
+    name: JVM tests (unit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run JVM unit tests
+        run: ./gradlew :domain:test :data:test :calendar:test :wear-protocol:test :app-phone:testDebugUnitTest --no-daemon
+
+      - name: Assemble debug APKs
+        run: ./gradlew :app-phone:assembleDebug :app-wear:assembleDebug --no-daemon
+
+      - name: Upload APKs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: statepilot-apks
+          path: |
+            app-phone/build/outputs/apk/debug/*.apk
+            app-wear/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
