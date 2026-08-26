@@ -12,6 +12,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.room.Room
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.example.execution.calendar.CalendarImporter
 import com.example.execution.persistence.RoomActualStateRepository
 import com.example.execution.persistence.RoomDeviationRepository
 import com.example.execution.persistence.RoomInterruptionRepository
@@ -81,9 +85,32 @@ class MainActivity : ComponentActivity() {
         // Fase 19 export: planner-feedback contract from Room data.
         val exporter = PlannerFeedbackExporter(this, db, scope)
 
+        // Calendar linking: Android calendar source + idempotent importer onto Room.
+        val calendarSettings = CalendarSettings(this)
+        val syncCalendar: suspend () -> String = {
+            val calId = calendarSettings.getLinkedCalendarId()
+            if (calId == null) "No calendar linked"
+            else {
+                // cached provider: reads the setting once per sync
+                val source = AndroidCalendarSource(this) { calId }
+                val importer = CalendarImporter(source, blocks, clockProvider = { kotlinx.datetime.Instant.fromEpochMilliseconds(System.currentTimeMillis()) })
+                val now = System.currentTimeMillis()
+                val result = importer.sync(
+                    kotlinx.datetime.Instant.fromEpochMilliseconds(now - 7L * 86_400_000L),
+                    kotlinx.datetime.Instant.fromEpochMilliseconds(now + 7L * 86_400_000L)
+                )
+                "created ${result.created}, updated ${result.updated}, cancelled ${result.cancelled}"
+            }
+        }
+
+        var showSettings by mutableStateOf(false)
         setContent {
+            if (showSettings) {
+                SettingsScreen(this, calendarSettings, syncCalendar) { showSettings = false }
+            }
             val ui by presenter.ui.collectAsState()
             ExecutionScreen(ui = ui, actions = object : PhoneActions {
+                override fun openSettings() { showSettings = true }
                 override fun export() { exporter.exportLast14Days() }
                 override fun start() { scope.launch { presenter.startPlanned("pb-demo") } }
                 override fun interrupt() { presenter.requestInterruptPicker() }
@@ -108,6 +135,7 @@ class MainActivity : ComponentActivity() {
 }
 
 interface PhoneActions {
+    fun openSettings()
     fun export()
     fun start()
     fun interrupt()          // opens the category picker
@@ -152,6 +180,7 @@ fun ExecutionScreen(ui: PhoneUiState, actions: PhoneActions) {
                 OutlinedButton(onClick = actions::resume, enabled = ui.showResume) { Text("Resume") }
                 OutlinedButton(onClick = actions::skip) { Text("Skip") }
                 OutlinedButton(onClick = actions::export) { Text("Export") }
+                OutlinedButton(onClick = actions::openSettings) { Text("Settings") }
             }
         }
     }
