@@ -35,7 +35,9 @@ data class WearCommandDto(
     val requestId: String,
     val plannedBlockId: String? = null,
     val activityTypeId: String? = null,
-    val delaySeconds: Long? = null
+    val delaySeconds: Long? = null,
+    /** Interruption category name (e.g. "CALL") for INTERRUPT commands. */
+    val category: String? = null
 )
 
 /** Revision semantics (§14.2): only state with revision >= current is accepted. */

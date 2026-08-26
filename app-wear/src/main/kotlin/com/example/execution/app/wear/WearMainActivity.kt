@@ -1,6 +1,7 @@
 package com.example.execution.app.wear
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.example.execution.domain.interruption.InterruptionCategory
 import com.example.execution.wear.cache.WatchDisplayState
 import com.example.execution.wear.tile.WatchActionMapper
 import com.example.execution.wear.tile.WatchButton
@@ -105,10 +107,30 @@ class WearMainActivity : Activity() {
         text = b.label
         textSize = 11f
         setOnClickListener {
-            scope.launch {
-                runCatching { WearCommandSender.send(this@WearMainActivity, b.command) }
+            if (b.command.type == com.example.execution.wear.protocol.WearCommandType.INTERRUPT) {
+                showInterruptCategoryDialog(b)
+            } else {
+                scope.launch {
+                    runCatching { WearCommandSender.send(this@WearMainActivity, b.command) }
+                }
             }
         }
+    }
+
+    /** Quick reason picker for interrupts (Fase 14 on the watch). */
+    private fun showInterruptCategoryDialog(interruptButton: WatchButton) {
+        val categories = InterruptionCategory.entries.map { it.name.lowercase().replace('_', ' ') }
+        val ids = InterruptionCategory.entries.map { it.name }
+        AlertDialog.Builder(this)
+            .setTitle("Interrupt — why?")
+            .setItems(categories.toTypedArray()) { _, which ->
+                val cmd = interruptButton.command.copy(category = ids[which])
+                scope.launch {
+                    runCatching { WearCommandSender.send(this@WearMainActivity, cmd) }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     /** Public for instrumentation: push a state and re-render (Fase 10 API kept). */

@@ -96,7 +96,12 @@ class PhoneWearBridge(
                 StartActivity(it, source = source, requestId = command.requestId)
             }
             WearCommandType.INTERRUPT ->
-                InterruptCurrentState(com.example.execution.domain.interruption.InterruptionCategory.OTHER, source, command.requestId)
+                InterruptCurrentState(
+                    command.category
+                        ?.let { runCatching { com.example.execution.domain.interruption.InterruptionCategory.valueOf(it) }.getOrNull() }
+                        ?: com.example.execution.domain.interruption.InterruptionCategory.OTHER,
+                    source, command.requestId
+                )
             WearCommandType.RESUME -> ResumeInterruptedState(source, command.requestId)
             WearCommandType.DELAY -> command.plannedBlockId?.let {
                 DelayPlannedBlock(it, command.delaySeconds ?: 600, source, command.requestId)
