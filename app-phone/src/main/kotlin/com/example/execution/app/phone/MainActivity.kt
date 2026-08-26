@@ -11,11 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.execution.data.repository.InMemoryActualStateRepository
-import com.example.execution.data.repository.InMemoryDeviationRepository
-import com.example.execution.data.repository.InMemoryInterruptionRepository
-import com.example.execution.data.repository.InMemoryPlannedBlockRepository
-import com.example.execution.data.repository.InMemoryTransitionRepository
+import androidx.room.Room
+import com.example.execution.persistence.RoomActualStateRepository
+import com.example.execution.persistence.RoomDeviationRepository
+import com.example.execution.persistence.RoomInterruptionRepository
+import com.example.execution.persistence.RoomPlannedBlockRepository
+import com.example.execution.persistence.RoomTransitionRepository
+import com.example.execution.persistence.StatePilotDatabase
 import com.example.execution.domain.interruption.InterruptionCategory
 import com.example.execution.domain.schedule.PlannedBlock
 import com.example.execution.domain.schedule.ScheduleEngine
@@ -42,33 +44,47 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val blocks = InMemoryPlannedBlockRepository()
-        val states = InMemoryActualStateRepository()
+        // Real persistence: Room-backed repositories (data survives restarts).
+        val db = Room.databaseBuilder(this, StatePilotDatabase::class.java, "statepilot.db").build()
+        val blocks = RoomPlannedBlockRepository(db)
+        val states = RoomActualStateRepository(db)
+        val transitions = RoomTransitionRepository(db)
+        val interruptions = RoomInterruptionRepository(db)
+        val deviations = RoomDeviationRepository(db)
         val clock: Clock = object : Clock {
             override fun now(): Instant = Instant.fromEpochMilliseconds(System.currentTimeMillis())
         }
         val now = clock.now()
         scope.launch {
-            blocks.upsert(
-                PlannedBlock(
-                    id = "pb-demo", activityTypeId = "deep_work", title = "Deep Work",
-                    plannedStart = now,
-                    plannedEnd = Instant.fromEpochMilliseconds(now.toEpochMilliseconds() + 2 * 3_600_000L),
-                    createdAt = now, updatedAt = now
+            // Demo seed only when the database is empty (first launch).
+            if (blocks.getBetween(now, now).isEmpty() && blocks.getById("pb-demo") == null) {
+                blocks.upsert(
+                    PlannedBlock(
+                        id = "pb-demo", activityTypeId = "deep_work", title = "Deep Work",
+                        plannedStart = now,
+                        plannedEnd = Instant.fromEpochMilliseconds(now.toEpochMilliseconds() + 2 * 3_600_000L),
+                        createdAt = now, updatedAt = now
+                    )
                 )
-            )
+            }
         }
 
         val stateEngine = StateEngine(
-            states, InMemoryTransitionRepository(), InMemoryInterruptionRepository(),
-            blocks, InMemoryDeviationRepository(), clock
+            states, transitions, interruptions, blocks, deviations, clock
         ) { "phone-${System.nanoTime()}" }
         val scheduleEngine = ScheduleEngine(blocks, states, clock)
         presenter = PhoneExecutionPresenter(stateEngine, scheduleEngine, states, blocks, scope)
 
+        // Notification loop: pure scheduler + real NotificationManager, every 60s.
+        NotificationLoop.create(this, scope, scheduleEngine, blocks).start()
+
+        // Fase 19 export: planner-feedback contract from Room data.
+        val exporter = PlannerFeedbackExporter(this, db, scope)
+
         setContent {
             val ui by presenter.ui.collectAsState()
             ExecutionScreen(ui = ui, actions = object : PhoneActions {
+                override fun export() { exporter.exportLast14Days() }
                 override fun start() { scope.launch { presenter.startPlanned("pb-demo") } }
                 override fun interrupt() { presenter.requestInterruptPicker() }
                 override fun interruptCategory(category: String) {
@@ -92,6 +108,7 @@ class MainActivity : ComponentActivity() {
 }
 
 interface PhoneActions {
+    fun export()
     fun start()
     fun interrupt()          // opens the category picker
     fun interruptCategory(category: String)
@@ -134,6 +151,7 @@ fun ExecutionScreen(ui: PhoneUiState, actions: PhoneActions) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = actions::resume, enabled = ui.showResume) { Text("Resume") }
                 OutlinedButton(onClick = actions::skip) { Text("Skip") }
+                OutlinedButton(onClick = actions::export) { Text("Export") }
             }
         }
     }
