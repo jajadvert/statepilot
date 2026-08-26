@@ -63,7 +63,9 @@ class PhoneWearBridge(
     private val stateEngine: StateEngine,
     @Suppress("UNUSED_PARAMETER") actualStates: ActualStateRepository,
     @Suppress("UNUSED_PARAMETER") plannedBlocks: PlannedBlockRepository,
-    private val transport: WearTransport
+    private val transport: WearTransport,
+    /** Editable interrupt reasons mirrored to the watch; empty = watch uses defaults. */
+    private val interruptCategoriesProvider: suspend () -> List<com.example.execution.wear.protocol.WearInterruptCategoryDto> = { emptyList() }
 ) {
     private var revision = 0L
 
@@ -80,7 +82,8 @@ class PhoneWearBridge(
                 currentPlannedBlock = s.currentPlannedBlock?.toDto(),
                 nextPlannedBlock = s.nextPlannedBlock?.toDto(),
                 transitionStatus = s.transitionStatus.name,
-                deviationSeconds = s.deviationSeconds
+                deviationSeconds = s.deviationSeconds,
+                interruptCategories = interruptCategoriesProvider()
             )
         )
     }

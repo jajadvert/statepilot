@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 class WearMainActivity : Activity() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var lastDisplay: WatchDisplayState? = null
     private lateinit var label: TextView
     private lateinit var buttonRow1: LinearLayout
     private lateinit var buttonRow2: LinearLayout
@@ -78,6 +79,7 @@ class WearMainActivity : Activity() {
     }
 
     private fun render(display: WatchDisplayState) {
+        lastDisplay = display
         val state = display.state
         val activity = state?.currentActivity
         label.text = when {
@@ -117,14 +119,20 @@ class WearMainActivity : Activity() {
         }
     }
 
-    /** Quick reason picker for interrupts (Fase 14 on the watch). */
+    /** Quick reason picker for interrupts — uses the phone's editable list when synced. */
     private fun showInterruptCategoryDialog(interruptButton: WatchButton) {
-        val categories = InterruptionCategory.entries.map { it.name.lowercase().replace('_', ' ') }
-        val ids = InterruptionCategory.entries.map { it.name }
+        val synced = lastDisplay?.state?.interruptCategories?.filter { it.enabled }.orEmpty()
+        // fallback: built-in categories
+        val categories = if (synced.isNotEmpty()) synced
+        else InterruptionCategory.entries.map {
+            com.example.execution.wear.protocol.WearInterruptCategoryDto(
+                it.name, it.name.lowercase().replace('_', ' '), true
+            )
+        }
         AlertDialog.Builder(this)
             .setTitle("Interrupt — why?")
-            .setItems(categories.toTypedArray()) { _, which ->
-                val cmd = interruptButton.command.copy(category = ids[which])
+            .setItems(categories.map { it.label }.toTypedArray()) { _, which ->
+                val cmd = interruptButton.command.copy(category = categories[which].id)
                 scope.launch {
                     runCatching { WearCommandSender.send(this@WearMainActivity, cmd) }
                 }

@@ -92,6 +92,9 @@ class MainActivity : ComponentActivity() {
         // Fase 19 export: planner-feedback contract from Room data.
         val exporter = PlannerFeedbackExporter(this, db, scope)
 
+        // Editable interrupt reasons (also mirrored to the watch).
+        val interruptSettings = InterruptCategorySettings(this)
+
         // Phone -> watch: real Data Layer bridge (state publish + command receive).
         val wearTransport = MessageClientWearTransport(this)
         presenter = PhoneExecutionPresenter(
@@ -99,7 +102,12 @@ class MainActivity : ComponentActivity() {
             watchConnectedProvider = { wearTransport.watchConnected.value }
         )
         val wearBridge = com.example.execution.wear.PhoneWearBridge(
-            scheduleEngine, stateEngine, states, blocks, wearTransport
+            scheduleEngine, stateEngine, states, blocks, wearTransport,
+            interruptCategoriesProvider = {
+                interruptSettings.getConfigs().map {
+                    com.example.execution.wear.protocol.WearInterruptCategoryDto(it.id, it.label, it.enabled)
+                }
+            }
         )
         val wearLoop = WearPublishLoop(scope, wearBridge, wearTransport)
         wearLoop.start()
@@ -108,8 +116,6 @@ class MainActivity : ComponentActivity() {
         // Calendar linking: Android calendar source + idempotent importer onto Room.
         val calendarSettings = CalendarSettings(this)
 
-        // Editable interrupt reasons.
-        val interruptSettings = InterruptCategorySettings(this)
         val syncCalendar: suspend () -> String = {
             val calId = calendarSettings.getLinkedCalendarId()
             if (calId == null) "No calendar linked"

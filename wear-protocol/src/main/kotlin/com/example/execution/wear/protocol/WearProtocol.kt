@@ -24,7 +24,16 @@ data class WearStateDto(
     val currentPlannedBlock: WearPlannedBlockDto? = null,
     val nextPlannedBlock: WearPlannedBlockDto? = null,
     val transitionStatus: String = "NONE",
-    val deviationSeconds: Long = 0
+    val deviationSeconds: Long = 0,
+    /** Editable interrupt reasons (phone settings) mirrored to the watch. */
+    val interruptCategories: List<WearInterruptCategoryDto> = emptyList()
+)
+
+@Serializable
+data class WearInterruptCategoryDto(
+    val id: String,
+    val label: String,
+    val enabled: Boolean = true
 )
 
 enum class WearCommandType { START_PLANNED, START_ACTIVITY, INTERRUPT, RESUME, DELAY, SKIP, FINISH }
