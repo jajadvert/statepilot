@@ -28,6 +28,7 @@ class WearPublishLoop(
         job = scope.launch {
             while (scope.isActive) {
                 runCatching {
+                    transport.refreshConnected()
                     bridge.publishState(kotlinx.datetime.Instant.fromEpochMilliseconds(System.currentTimeMillis()))
                 }
                 delay(tickMs)

@@ -26,6 +26,7 @@ data class PhoneUiState(
     val statusLine: String = "",
     val showResume: Boolean = false,
     val showInterruptionPicker: Boolean = false,
+    val watchConnected: Boolean = false,
     val busy: Boolean = false
 )
 
@@ -40,7 +41,9 @@ class PhoneExecutionPresenter(
     private val actualStates: ActualStateRepository,
     private val plannedBlocks: PlannedBlockRepository,
     private val scope: CoroutineScope,
-    private val requestIds: () -> String = { "ui-${requestCounter.incrementAndGet()}" }
+    private val requestIds: () -> String = { "ui-${requestCounter.incrementAndGet()}" },
+    /** Connectivity status of the Wear transport; default no-watch (tests). */
+    private val watchConnectedProvider: () -> Boolean = { false }
 ) {
     private val _ui = MutableStateFlow(PhoneUiState())
     val ui: StateFlow<PhoneUiState> = _ui
@@ -76,7 +79,8 @@ class PhoneExecutionPresenter(
             statusLine = statusLine(s.deviationSeconds, s.transitionStatus),
             showResume = isInInterruption(actual),
             // keep transient UI state across the 1s refresh ticks
-            showInterruptionPicker = _ui.value.showInterruptionPicker
+            showInterruptionPicker = _ui.value.showInterruptionPicker,
+            watchConnected = watchConnectedProvider()
         )
     }
 

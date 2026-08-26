@@ -57,6 +57,14 @@ class PhoneExecutionPresenterTest {
     }
 
     @Test
+    fun `watch connectivity reflected in ui state`() = runTest {
+        val (p, _, _) = setup()
+        assertFalse(p.ui.value.watchConnected) // default: no watch
+        p.refresh()
+        assertFalse(p.ui.value.watchConnected)
+    }
+
+    @Test
     fun `empty plan state renders`() = runTest {
         val (p, _, _) = setup()
         p.refresh()

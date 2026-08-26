@@ -85,7 +85,6 @@ class MainActivity : ComponentActivity() {
             states, transitions, interruptions, blocks, deviations, clock
         ) { "phone-${System.nanoTime()}" }
         val scheduleEngine = ScheduleEngine(blocks, states, clock)
-        presenter = PhoneExecutionPresenter(stateEngine, scheduleEngine, states, blocks, scope)
 
         // Notification loop: pure scheduler + real NotificationManager, every 60s.
         NotificationLoop.create(this, scope, scheduleEngine, blocks).start()
@@ -95,6 +94,10 @@ class MainActivity : ComponentActivity() {
 
         // Phone -> watch: real Data Layer bridge (state publish + command receive).
         val wearTransport = MessageClientWearTransport(this)
+        presenter = PhoneExecutionPresenter(
+            stateEngine, scheduleEngine, states, blocks, scope,
+            watchConnectedProvider = { wearTransport.watchConnected.value }
+        )
         val wearBridge = com.example.execution.wear.PhoneWearBridge(
             scheduleEngine, stateEngine, states, blocks, wearTransport
         )
@@ -196,6 +199,12 @@ fun ExecutionScreen(
             Text("NEXT", fontSize = 12.sp)
             Text(ui.nextTitle, fontSize = 18.sp)
             Text(ui.statusLine, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+            Text(
+                if (ui.watchConnected) "⌚ Watch connected" else "⌚ No watch connected",
+                fontSize = 12.sp,
+                color = if (ui.watchConnected) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.outline
+            )
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = actions::start) { Text("Start") }

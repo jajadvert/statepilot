@@ -38,6 +38,13 @@ class MessageClientWearTransport(
     private val _states = MutableStateFlow(WearStateDto(revision = 0))
     override val states: Flow<WearStateDto> = _states
 
+    /** True when at least one Wear node is connected (pairing indicator). */
+    private val _watchConnected = MutableStateFlow(false)
+    val watchConnected: kotlinx.coroutines.flow.StateFlow<Boolean> = _watchConnected
+
+    // No dedicated node-connect listeners on NodeClient; connectivity is
+    // refreshed periodically by the publish loop via refreshConnected().
+
     /** Incoming watch commands are forwarded to this handler (set by the app). */
     var onCommand: (suspend (WearCommandDto) -> Unit)? = null
 
@@ -54,7 +61,12 @@ class MessageClientWearTransport(
 
     init {
         messageClient.addListener(messageListener)
-        // drain incoming commands on the app scope
+    }
+
+    /** Public for the publish loop: refresh the paired-node indicator. */
+    suspend fun refreshConnected() {
+        val nodes = runCatching { nodeClient.connectedNodes.await() }.getOrNull() ?: emptyList()
+        _watchConnected.value = nodes.isNotEmpty()
     }
 
     /** Collects incoming watch commands (from the channel). */

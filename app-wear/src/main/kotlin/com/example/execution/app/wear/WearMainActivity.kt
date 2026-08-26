@@ -62,6 +62,7 @@ class WearMainActivity : Activity() {
                     append("\n").append(formatElapsed(elapsedSec))
                 }
                 if (display.isStale) append("\n(offline)")
+                else if (display.fromCache) append("\n(cached)")
             }
         }
     }
