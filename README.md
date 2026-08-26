@@ -26,7 +26,7 @@ op je pols, met suggesties en een volledige audit-trail.
 | 18 | Automatic transitions + audit trail | ✅ |
 | 19 | Planner-feedback-contract | ✅ (versioned JSON) |
 
-**Tests:** 120 JVM-unit-tests + 3 instrumented wear-tests, 0 failures.
+**Tests:** 129 JVM-unit-tests (incl. Room/Robolectric) + 3 instrumented wear-tests, 0 failures.
 
 ## Modules
 
@@ -36,6 +36,7 @@ op je pols, met suggesties en een volledige audit-trail.
 | `data` | pure JVM | In-memory repositories (invarianten-afdwingend) |
 | `calendar` | pure JVM | Idempotente kalenderimport/merge |
 | `wear-protocol` | pure JVM | DTO's, revision-merger, transport, cache, tile-mapper |
+| `persistence` | Android (Room) | SQLite-implementaties van alle repository-interfaces (Robolectric-getest) |
 | `app-phone` | Android | Compose-execution-UI, presenter, notifications, tile/action-receiver |
 | `app-wear` | Android | WearMainActivity, TileService, DataStore-cache-adapter |
 
