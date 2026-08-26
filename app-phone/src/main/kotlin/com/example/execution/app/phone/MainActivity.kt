@@ -60,8 +60,16 @@ class MainActivity : ComponentActivity() {
         }
         val now = clock.now()
         scope.launch {
-            // Demo seed only when the database is empty (first launch).
-            if (blocks.getBetween(now, now).isEmpty() && blocks.getById("pb-demo") == null) {
+            // Demo seed: keep a live demo block only while there is no real
+            // (linked-calendar) planning. A stale demo block is re-seeded.
+            val demo = blocks.getById("pb-demo")
+            val hasRealPlanning = blocks.getBetween(
+                Instant.fromEpochMilliseconds(now.toEpochMilliseconds() - 60_000L),
+                Instant.fromEpochMilliseconds(now.toEpochMilliseconds() + 14L * 86_400_000L)
+            ).any { it.id != "pb-demo" }
+            val demoStale = demo == null || demo.plannedEnd < now
+
+            if (!hasRealPlanning && demoStale) {
                 blocks.upsert(
                     PlannedBlock(
                         id = "pb-demo", activityTypeId = "deep_work", title = "Deep Work",
